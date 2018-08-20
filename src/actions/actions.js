@@ -4,7 +4,7 @@ export const markTodo = id => { return { type: MARK_TODO, id } }
 
 
 //change the below to follow the id naming scheme
-export const addTodo = (id) => { return { type: ADD_TODO, id } }
+export const addTodo = (title, keyNumber) => { return { type: ADD_TODO, title, keyNumber } }
 
 export const deleteTodo = (id) => { return { type: DELETE_TODO, id } }
 

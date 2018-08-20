@@ -3,26 +3,22 @@ import { ToDoItem } from './todoitem.jsx';
 import todo from './todos.json'
 import { Link, Route, Switch } from "react-router-dom";
 import { connect } from 'react-redux'
-import { markTodo } from './actions/actions.js';
+import { markTodo, addTodo, deleteTodo, clearCompleted } from './actions/actions.js';
 //import connect
 
 
 class ToDoList extends Component {
 
     //state disappears
-    state = { todolist: todo, key: 200 }
+    state = { key: 200 }
 
     handleNewTask = (event) => {
 
         if (event.keyCode === 13) {
-            let keyNumber = this.state.key
-            let newArray = this.state.todolist.slice()
-            newArray.push({ title: event.target.value, completed: false, id: keyNumber++, userID: 1 })
-            this.setState({ todolist: newArray })
-            this.setState({ key: keyNumber++ })
-            // store.dispatch({ todolist: newArray, key: keyNumber++ })
-            //call action creater function
-            //connecter (mapstate, mapdispatch)(component) at bottom
+            let keyNumber = this.state.key + 1
+            let title = event.target.value
+            this.setState({ key: keyNumber })
+            this.props.addTodo(title, keyNumber)
             event.target.value = null
 
         }
@@ -32,55 +28,33 @@ class ToDoList extends Component {
 
 
     toggleCheck = (id) => (event) => {
-        // let arrayClicked = this.state.todolist.filter(todo => todo.id === id)
-        // let item = arrayClicked.pop()
-        // item.completed = !item.completed
-        // let newArray = this.state.todolist.map(todo => {
-        //     if (todo.id === id.id) { return todo = item } else { return todo }
-        // })
-
         this.props.markComplete(id)
     }
 
 
 
     deleteOne = (id) => (event) => {
-
-        let arrayClicked = this.state.todolist.filter(todo => todo.id === id)
-        let item = arrayClicked.pop()
-
-
-        console.log("delete me", item)
-        let index = this.state.todolist.indexOf(item)
-        console.log(index)
-        let newArray = this.state.todolist.slice()
-        newArray.splice(index, 1)
-        // console.log(newArray)
-
-        this.setState({ todolist: newArray })
-        // store.dispatch({ todolist: newArray })
+        this.props.deleteTodo(id)
     }
 
-    deleteAll = (event) => {
-        let newArray = this.state.todolist.filter(todo => todo.completed === false)
-        console.log(newArray)
-        console.log('ginger')
-        this.setState({ todolist: newArray })
+    deleteAll = (id) => {
+        // let newArray = this.state.todolist.filter(todo => todo.completed === false)
+        // this.setState({ todolist: newArray })
         // store.dispatch({ todolist: newArray })
-        console.log(this.state)
+        this.props.clearCompleted(id)
     }
 
     entireList = () => {
-        return this.state.todolist.map(todo => <ToDoItem key={todo.id} status={todo.completed} task={todo.title} deleteOne={this.deleteOne(todo.id)} toggleCheck={this.toggleCheck(todo.id)} />)
+        return this.props.todos.map(todo => <ToDoItem key={todo.id} status={todo.completed} task={todo.title} deleteOne={this.deleteOne(todo.id)} toggleCheck={this.toggleCheck(todo.id)} />)
     }
 
     active = () => {
-        let newArray = this.state.todolist.filter(todo => todo.completed === false)
+        let newArray = this.props.todos.filter(todo => todo.completed === false)
         return newArray.map(todo => <ToDoItem key={todo.id} status={todo.completed} task={todo.title} deleteOne={this.deleteOne(todo.id)} toggleCheck={this.toggleCheck(todo.id)} />)
     }
 
     completed = () => {
-        let newArray = this.state.todolist.filter(todo => todo.completed === true)
+        let newArray = this.props.todos.filter(todo => todo.completed === true)
         return newArray.map(todo => <ToDoItem key={todo.id} status={todo.completed} task={todo.title} deleteOne={this.deleteOne(todo.id)} toggleCheck={this.toggleCheck(todo.id)} />)
     }
 
@@ -100,8 +74,6 @@ class ToDoList extends Component {
                     <section className='main'>
                         <ul className='todo-list'>
 
-
-
                             <Switch>
                                 <Route exact path="/" component={this.entireList} />
                                 <Route exact path="/active" component={this.active} />
@@ -110,11 +82,10 @@ class ToDoList extends Component {
                             </Switch>
 
                         </ul>
-
                     </section>
 
                     <footer className='footer'>
-                        <span className='todo-count'><strong>0</strong> item(s) left</span>
+                        <span className='todo-count'><strong>{this.props.todos.length}</strong> item(s) left</span>
 
                         <ul className="filters">
                             <li>
@@ -157,7 +128,9 @@ const mapStateToProps = (state) => {
 function mapDispatchToProps(dispatch) {
     return ({
         markComplete: (id) => { dispatch(markTodo(id)) },
-
+        addTodo: (title, keyNumber) => { dispatch(addTodo(title, keyNumber)) },
+        deleteTodo: (id) => { dispatch(deleteTodo(id)) },
+        clearCompleted: (id) => { dispatch(clearCompleted(id)) }
 
     })
 }

@@ -1,11 +1,13 @@
 import { combineReducers } from 'redux';
 import { MARK_TODO, ADD_TODO, DELETE_TODO, CLEAR_COMPLETED } from '../actions/types';
+
 import todos from '../todos.json'
 
 
 
 const initialState = {
     todos: todos,
+
 }
 
 //what a todo looks like
@@ -16,33 +18,37 @@ export default function (state = initialState, action) {
         case MARK_TODO:
             return {
                 ...state,
-                todos: state.todos.map(todo => {
-                    todo.id === action.id ? todo.completed = !todo.completed : null
-                    return todo;
+                todos:
+                    state.todos.map(todo => {
+                        todo.id === action.id ? todo.completed = !todo.completed : null
+                        return todo;
 
-                })
+                    })
+
             }
 
         case ADD_TODO:
-            return Object.assign({}, state, {
-                todos: [
-                    ...state.todos,
-                    {
-                        userId: action.user.userID,
-                        completed: false,
-                        title: action.title,
-                        key: action.id
-                    }
-                ]
-            })
+            return {
+                ...state,
+                todos: [...state.todos, { title: action.title, completed: false, id: action.keyNumber, userID: 1 }]
+
+            }
+
         case DELETE_TODO:
+            return {
+                ...state,
+                todos: state.todos.filter(todo => todo.id !== action.id)
+            }
 
 
-            break;
 
         case CLEAR_COMPLETED:
+            return {
+                ...state,
+                todos:
+                    state.todos.filter(todo => todo.completed === false)
+            }
 
-            break;
         default:
             return state;
     }
